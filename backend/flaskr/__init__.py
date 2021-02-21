@@ -39,7 +39,7 @@ def create_app(test_config=None):
     @app.route('/categories', methods=['GET'])
     def get_categories():
         categories = Category.query.all()
-        categories = [category.format()['id'] for category in categories]
+        categories = [category.format() for category in categories]
         return jsonify({'success': True, 'categories': categories})
 
     '''
@@ -65,11 +65,9 @@ def create_app(test_config=None):
     def get_questions():
         categories = Category.query.all()
         # categories = [category.format() for category in categories]
-        current_category = categories[0].id
         categories = [category.format() for category in categories]
         # print(current_category['type'])
-        questions = Question.query.filter(
-            Question.category == current_category).all()
+        questions = Question.query.all()
         questions = [question.format() for question in questions]
         current_questions = pagination(request, questions)
         if len(current_questions) == 0:
@@ -78,7 +76,7 @@ def create_app(test_config=None):
             return jsonify({'questions': current_questions,
                             'total_questions': len(questions),
                             'categories': categories,
-                            'current_category': current_category})
+                            'current_category': None})
 
     '''
   @TODO:
@@ -131,7 +129,7 @@ def create_app(test_config=None):
         search_term = '%'+str(search_term)+'%'
         search_term = search_term.lower()
         questions = Question.query.filter(
-            Question.question.like(search_term)).all()
+            Question.question.ilike(search_term)).all()
         questions = [question.format() for question in questions]
         return jsonify({"questions": questions})
 

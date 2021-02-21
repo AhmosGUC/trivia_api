@@ -71,14 +71,26 @@ REVIEW_COMMENT
 This README is missing documentation of your endpoints. Below is an example for your endpoint to get all categories. Please use it as a reference for creating your documentation and resubmit your code. 
 
 Endpoints
+
 GET '/questions?page=1'
+- get the questions from the database using pagenation
 response => {
     "categories":[{"id":int,"type":string},.....,{}],
     "current_category":int,
     "total_questions":int,
     "questions":[{"answer":string,"category":int,"difficulty":int,"id":int,"question":string},....,{}]
 }
+POST '/questions/<string>'
+- Search database using searchterm
+request => {
+    "questions":[
+        {"answer":string,"category":int,"difficulty":int,"id":int,"question":string},
+        ....,
+        {}
+    ]
+}
 POST '/questions'
+- Adds questions to the database
 request => {
     "questios":string,
     "answer":string,
@@ -86,6 +98,7 @@ request => {
     "difficulty":int
 }
 DELETE '/questions/<int>'
+- DELETE Question with the some id 
 response => {
     "deleted": int
 }
@@ -94,12 +107,37 @@ GET '/categories'
 - Fetches a dictionary of categories in which the keys are the ids and the value is the corresponding string of the category
 - Request Arguments: None
 - Returns: An object with a single key, categories, that contains a object of id: category_string key:value pairs. 
-{'1' : "Science",
-'2' : "Art",
-'3' : "Geography",
-'4' : "History",
-'5' : "Entertainment",
-'6' : "Sports"}
+{"categories" : [
+    {"id":'1' ,"type": "Science"},
+    {"id":'2' ,"type":"Art"},
+    {"id":'3' ,"type":"Geography"},
+    {"id":'4' ,"type":"History"},
+    {"id":'5' ,"type":"Entertainment"},
+    {"id":'6' ,"type":"Sports"}],
+    "success":true
+}
+
+GET /categories/<int>/questions
+-Get questions with certain category from the database
+ request => {
+    "questions":[
+        {"answer":string,"category":int,"difficulty":int,"id":int,"question":string},
+        ....,
+        {}
+    ]
+}
+
+POST /quizzes
+-Gets random question from the database according to previous one and category
+
+request => {
+    "previous_questions":[{"answer":string,"category":int,"difficulty":int,"id":int,"question":string},...,{}],
+    "quiz_category":int
+}
+response =>{
+    "question":{"answer":string,"category":int,"difficulty":int,"id":int,"question":string}
+}
+
 
 ```
 
