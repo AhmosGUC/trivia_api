@@ -94,16 +94,6 @@ class TriviaTestCase(unittest.TestCase):
         # self.assertTrue(data['questions'])
         self.assertEqual(len(data['questions']), 0)
 
-    def test_create_question(self):
-        body = dict(
-            question="qtest",
-            answer="atest",
-            category=1,
-            difficulty=1)
-        res = self.client().post('/questions', data=json.dumps(body),
-                                 content_type='application/json')
-        self.assertEqual(res.status_code, 200)
-
     def test_get_question_with_category(self):
         self.question.insert()
         test_cat = 1
@@ -119,12 +109,6 @@ class TriviaTestCase(unittest.TestCase):
         test_cat = 1000
         res = self.client().get('/categories/'+str(test_cat)+'/questions')
         self.assertEqual(res.status_code, 422)
-
-    def test_get_categories(self):
-        res = self.client().get('/categories')
-        self.assertEqual(res.status_code, 200)
-        data = json.loads(res.data)
-        self.assertTrue(data['categories'])
 
     def test_play_quiz(self):
         body = dict(
@@ -151,6 +135,35 @@ class TriviaTestCase(unittest.TestCase):
                                   content_type='application/json')
         q1 = json.loads(res1.data)
         self.assertEqual(q1['success'], False)
+
+    def test_create_question(self):
+        body = dict(
+            question="qtest",
+            answer="atest",
+            category=1,
+            difficulty=1)
+        res = self.client().post('/questions', data=json.dumps(body),
+                                 content_type='application/json')
+        self.assertEqual(res.status_code, 200)
+
+    def test_create_question_fail(self):
+        body = dict(
+            question="qtest",
+            category=1,
+            difficulty=1)
+        res = self.client().post('/questions', data=json.dumps(body),
+                                 content_type='application/json')
+        self.assertEqual(res.status_code, 400)
+
+    def test_get_categories(self):
+        res = self.client().get('/categories')
+        self.assertEqual(res.status_code, 200)
+        data = json.loads(res.data)
+        self.assertTrue(data['categories'])
+
+    def test_get_categories_fail(self):
+        res = self.client().post('/categories')
+        self.assertEqual(res.status_code, 405)
 
 
 # Make the tests conveniently executable

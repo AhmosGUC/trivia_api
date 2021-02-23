@@ -107,11 +107,16 @@ def create_app(test_config=None):
     @app.route('/questions', methods=["POST"])
     def create_question():
         q_data = request.get_json()
-        q = Question(q_data["question"],
-                     q_data["answer"],
-                     q_data["category"],
-                     q_data["difficulty"])
-        q.insert()
+        try:
+            q = Question(q_data["question"],
+                         q_data["answer"],
+                         q_data["category"],
+                         q_data["difficulty"])
+            q.insert()
+        except KeyError:
+            abort(400)
+        except:
+            abort(500)
         return jsonify({'success': True})
 
     '''
@@ -188,12 +193,24 @@ def create_app(test_config=None):
   Create error handlers for all expected errors
   including 404 and 422.
   '''
+    @app.errorhandler(400)
+    def bad_request(error):
+        return jsonify({'message': 'bad request', 'status': 400}), 400
+
     @app.errorhandler(404)
     def not_found(error):
         return jsonify({'message': 'not found', 'status': 404}), 404
 
+    @app.errorhandler(405)
+    def method_not_allowed(error):
+        return jsonify({'message': 'method not allowed', 'status': 405}), 405
+
     @app.errorhandler(422)
     def unprocessable(error):
         return jsonify({'message': 'unprocessable', 'status': 422}), 422
+
+    @app.errorhandler(500)
+    def server_error(error):
+        return jsonify({'message': 'internal server error', 'status': 500}), 500
 
     return app
