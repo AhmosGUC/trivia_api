@@ -84,7 +84,7 @@ class TriviaTestCase(unittest.TestCase):
         data = json.loads(res.data)
         self.assertEqual(res.status_code, 200)
         self.assertTrue(data['questions'])
-        self.assertEqual(len(data['questions']), 1)
+        self.assertGreaterEqual(len(data['questions']), 1)
         self.question.delete()
 
     def test_search_term_no_match(self):
@@ -95,33 +95,62 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(len(data['questions']), 0)
 
     def test_create_question(self):
-        with self.app.app_context():
-            body = dict(
-                question="qtest",
-                answer="atest",
-                category=1,
-                difficulty=1)
-            res = self.client().post('/questions', data=json.dumps(body),
-                                     content_type='application/json')
-            self.assertEqual(res.status_code, 200)
+        body = dict(
+            question="qtest",
+            answer="atest",
+            category=1,
+            difficulty=1)
+        res = self.client().post('/questions', data=json.dumps(body),
+                                 content_type='application/json')
+        self.assertEqual(res.status_code, 200)
 
-    # def test_get_question_with_category(self):
-    #     self.question.insert()
-    #     res = self.client().post('/categories/'+str(1)+'/questions')
-    #     data = json.loads(res.data)
-    #     self.assertEqual(res.status_code, 200)
-    #     self.assertTrue(data['questions'])
-    #     self.assertNotEqual(len(data['questions']), 0)
-    #     self.question.delete()
+    def test_get_question_with_category(self):
+        self.question.insert()
+        test_cat = 1
+        res = self.client().get('/categories/'+str(test_cat)+'/questions')
+        data = json.loads(res.data)
+        self.assertEqual(res.status_code, 200)
+        self.assertTrue(data['questions'])
+        for question in data['questions']:
+            self.assertEqual(test_cat, question["category"])
+        self.question.delete()
 
-    # def test_get_question_with_wrong_category(self):
-    #     return True
+    def test_get_question_with_wrong_category(self):
+        test_cat = 1000
+        res = self.client().get('/categories/'+str(test_cat)+'/questions')
+        self.assertEqual(res.status_code, 422)
 
-    # def test_get_categories(self):
-    #     return True
+    def test_get_categories(self):
+        res = self.client().get('/categories')
+        self.assertEqual(res.status_code, 200)
+        data = json.loads(res.data)
+        self.assertTrue(data['categories'])
 
-    # def test_play_quiz(self):
-    #     return True
+    def test_play_quiz(self):
+        body = dict(
+            previous_questions=[],
+            quiz_category=dict(id=0, type=None))
+        res1 = self.client().post('/quizzes', data=json.dumps(body),
+                                  content_type='application/json')
+        res2 = self.client().post('/quizzes', data=json.dumps(body),
+                                  content_type='application/json')
+
+        q1 = json.loads(res1.data)
+        q2 = json.loads(res2.data)
+
+        self.assertTrue(q1['question'])
+        self.assertTrue(q2['question'])
+        self.assertEqual(q1['success'], True)
+        self.assertNotEqual(q1['question']['id'], q2['question']['id'])
+
+    def test_play_quiz_fail(self):
+        body = dict(
+            previous_questions=[16, 17, 18, 19],
+            quiz_category=dict(id=2, type=None))
+        res1 = self.client().post('/quizzes', data=json.dumps(body),
+                                  content_type='application/json')
+        q1 = json.loads(res1.data)
+        self.assertEqual(q1['success'], False)
 
 
 # Make the tests conveniently executable

@@ -145,7 +145,7 @@ def create_app(test_config=None):
     def get_questions_with_category(cid):
         search_category = Category.query.get(cid)
         if search_category is None:
-            abort(404)
+            abort(422)
         else:
             search_category = search_category.format()['id']
             questions = Question.query.filter(
@@ -181,7 +181,7 @@ def create_app(test_config=None):
             if questions[q]['id'] in prev_quest:
                 del questions[q]
             else:
-                return jsonify({'question': questions[q]})
+                return jsonify({'question': questions[q], 'success': True})
         return jsonify({'success': False})
     '''
   @TODO:
